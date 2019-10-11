@@ -11,14 +11,6 @@
     msg: "{{ vars }}"
     verbosity: 2
 
-- name: (main) set tag to indicate deployment
-  ec2_tag:
-    region: "{{ region }}"
-    resource: "{{ instance_id }}"
-    state: present
-    tags:
-      nomis_version: "Deploying - {{ nomis_version }}"
-
 - name: (main) Set WebLogic startup params
   include: wl_params.yml
   become: yes
@@ -51,11 +43,3 @@
     name: weblogic.service
     state: restarted
     enabled: yes
-
-- name: (main) set tag to indicate deployed nomis_version
-  ec2_tag:
-    region: "{{ region }}"
-    resource: "{{ instance_id }}"
-    state: present
-    tags:
-      nomis_version: "{{ nomis_version }}"
