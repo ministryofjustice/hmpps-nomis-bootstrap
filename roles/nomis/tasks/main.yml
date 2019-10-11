@@ -1,0 +1,61 @@
+---
+# tasks file for nomis
+- name: (main) Set facts
+  set_fact:
+    wl_home: /u01/app/oracle/middleware/wlserver_10.3
+    wl_port: 7001
+    domain_home: '/u01/app/oracle/middleware/user_projects/domains/{{ domain_name }}'
+
+- name: (main) Debug vars
+  debug:
+    msg: "{{ vars }}"
+    verbosity: 2
+
+- name: (main) set tag to indicate deployment
+  ec2_tag:
+    region: "{{ region }}"
+    resource: "{{ instance_id }}"
+    state: present
+    tags:
+      nomis_version: "Deploying - {{ nomis_version }}"
+
+- name: (main) Set WebLogic startup params
+  include: wl_params.yml
+  become: yes
+  become_user: oracle
+
+- name: (main) Set WebLogic admin password
+  include: admin_password.yml
+  become: yes
+  become_user: oracle
+
+- name: (main) Setup security realm
+  include: security_realm.yml
+  become: yes
+  become_user: oracle
+
+- name: (main) Install proxy to insert SSL header
+  include: haproxy.yml
+
+- name: (main) Cron job for nightly service restart
+  become: yes
+  cron:
+    name: Restart WebLogic
+    job: 'systemctl restart weblogic'
+    minute: '0'
+    hour: '2'
+
+- name: (main) Start weblogic
+  become: yes
+  systemd:
+    name: weblogic.service
+    state: restarted
+    enabled: yes
+
+- name: (main) set tag to indicate deployed nomis_version
+  ec2_tag:
+    region: "{{ region }}"
+    resource: "{{ instance_id }}"
+    state: present
+    tags:
+      nomis_version: "{{ nomis_version }}"

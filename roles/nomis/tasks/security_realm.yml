@@ -1,0 +1,39 @@
+---
+
+- name: (main/security_realm) Copy domain.properties
+  template:
+    src: '{{ item.file }}.j2'
+    dest: '/u01/software/{{ item.file }}'
+    mode: 0644
+    owner: oracle
+    group: oinstall
+  with_items:
+     - { file: domain.properties }
+     - { file: setup_security_realm.py }
+
+- name: (main/security_realm) Copy scripts
+  copy:
+    src: 'scripts/{{ item.file }}'
+    dest: '/u01/software/{{ item.file }}'
+    mode: 0644
+    owner: oracle
+    group: oinstall
+  with_items:
+     - { file: setup_roles.py }
+     - { file: create_test_users.py }
+
+- name: (main/security_realm) Create security realm
+  shell: '. ~/.bash_profile && ${WLS_HOME}/common/bin/wlst.sh /u01/software/setup_security_realm.py'
+  environment:
+    weblogic_admin_password: '{{ weblogic_admin_password }}'
+
+- name: (main/security_realm) Create global roles
+  shell: '. ~/.bash_profile && ${WLS_HOME}/common/bin/wlst.sh /u01/software/setup_roles.py'
+  environment:
+    weblogic_admin_password: '{{ weblogic_admin_password }}'
+
+- name: (main/security_realm) Create test users
+  when: ldap_host is not defined
+  shell: '. ~/.bash_profile && ${WLS_HOME}/common/bin/wlst.sh /u01/software/create_test_users.py'
+  environment:
+    weblogic_admin_password: '{{ weblogic_admin_password }}'

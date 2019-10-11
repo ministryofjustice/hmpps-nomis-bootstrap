@@ -1,0 +1,6 @@
+- hosts: wln
+  become: true
+  become_user: root
+  become_method: sudo
+  roles:
+    - { role: nomis }
