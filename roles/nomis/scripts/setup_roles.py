@@ -48,7 +48,7 @@ def endOfScriptRun():
 
 
 def createSSOUsersRole():
-    cd("/SecurityConfiguration/Nomis/Realms/myrealm/RoleMappers/XACMLRoleMapper")
+    cd("/SecurityConfiguration/NDelius/Realms/myrealm/RoleMappers/XACMLRoleMapper")
     try:
         print "creating SSOUsers role..."
         cmo.createRole(None, "SSOUsers", None, "")
