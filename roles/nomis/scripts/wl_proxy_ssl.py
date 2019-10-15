@@ -57,7 +57,7 @@ def endOfScriptRun():
 try:
     initConfigToScriptRun()
     startTransaction()
-    cd("WebAppContainer/Nomis")
+    cd("WebAppContainer/NDelius")
     set("WeblogicPluginEnabled", "true")
     endTransaction()
 finally:
